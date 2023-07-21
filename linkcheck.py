@@ -7,11 +7,15 @@ def check_url(url):
     except requests.RequestException:
         return False
 
-# Example usage:
-url_to_check = 'http://www.history-lab.org'
-result = check_url(url_to_check)
+def check_urls_from_file(input_filename, output_filename):
+    with open(input_filename, 'r') as input_file, open(output_filename, 'w') as output_file:
+        for line in input_file:
+            url = line.strip()  # Remove newline characters and leading/trailing whitespaces
+            result = check_url(url)
+            status = 'Y' if result else 'N'
+            output_file.write(f"{url} {status}\n")
 
-if result:
-    print(f"The URL '{url_to_check}' is valid.")
-else:
-    print(f"The URL '{url_to_check}' is invalid.")
+# Example usage:
+input_filename = 'test-urls.txt'
+output_filename = 'test-urls.out'
+check_urls_from_file(input_filename, output_filename)
