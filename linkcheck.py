@@ -1,21 +1,31 @@
 import requests
 import argparse
 
+EXCEPTION_CODE = -999
+
 def check_url(url):
     try:
         response = requests.get(url)
-        return response.status_code == 200
+        return response.status_code
     except requests.RequestException:
-        return False
+        print(requests.RequestException)
+        return EXCEPTION_CODE
 
 def check_urls_from_file(input_filename, output_filename):
     with open(input_filename, 'r') as input_file, open(output_filename, 'w') as output_file:
         for line in input_file:
-            url = line.strip()  # Remove newline characters and leading/trailing whitespaces
-            print(url)
-            result = check_url(url)
-            status = 'Y' if result else 'N'
-            output_file.write(f"{url}, {status}\n")
+            input_url = line.strip()  # Remove newline characters and leading/trailing whitespaces
+            print(input_url)
+            if input_url == '':
+                output_file.write(f"{input_url}, {input_url}, {EXCEPTION_CODE}, 'N/A'\n")
+            else:
+                if input_url[:4] != 'http':
+                    test_url = 'https://' + input_url
+                else:
+                    test_url = input_url
+                status_code = check_url(test_url)
+                live = 'Y' if status_code == 200 else 'N'
+                output_file.write(f"{input_url}, {test_url}, {status_code}, {live}\n")
 
 
 if __name__ == "__main__":
