@@ -1,7 +1,7 @@
 import requests
 import argparse
 
-EXCEPTION_CODE = -999
+NOSITE_CODE = ''
 
 def check_url(url):
     try:
@@ -9,23 +9,27 @@ def check_url(url):
         return response.status_code
     except requests.RequestException:
         print(requests.RequestException)
-        return EXCEPTION_CODE
 
 def check_urls_from_file(input_filename, output_filename):
     with open(input_filename, 'r') as input_file, open(output_filename, 'w') as output_file:
+        output_file.write(f"Tested Link, HTTP Status, Found\n")
         for line in input_file:
             input_url = line.strip()  # Remove newline characters and leading/trailing whitespaces
             print(input_url)
             if input_url == '':
-                output_file.write(f"{input_url}, {input_url}, {EXCEPTION_CODE}, 'N/A'\n")
+                output_file.write(f"{NOSITE_CODE},{NOSITE_CODE},N/A\n")
             else:
                 if input_url[:4] != 'http':
                     test_url = 'https://' + input_url
                 else:
                     test_url = input_url
                 status_code = check_url(test_url)
-                live = 'Y' if status_code == 200 else 'N'
-                output_file.write(f"{input_url}, {test_url}, {status_code}, {live}\n")
+                if   status_code == 200: found =  'Y'
+                elif status_code == 404: found =  'N'
+                elif status_code is None: found = '?'
+                elif status_code >= 500: found =  'N'
+                else: found = '?' 
+                output_file.write(f"{test_url},{status_code},{found}\n")
 
 
 if __name__ == "__main__":
